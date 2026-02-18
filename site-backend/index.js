@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
 import basicAuth from 'express-basic-auth';
+import { buildGuideEmail, buildChallengeEmail, buildReservationEmail, buildConsultationEmail } from './emailTemplates.js';
 import { sendGuideEmail } from './pdfGuideService.js';
 import { sendMicrochallengeEmail } from './microchallengeService.js';
 import { sendReservationEmail } from './emailService.js';
@@ -38,17 +39,8 @@ const adminAuth = basicAuth({
 app.post('/api/guide', async (req, res) => {
   const { email, lang } = req.body;
   if (!email) return res.status(400).json({ error: 'Missing email' });
-  const subject = lang === 'ro' ? 'Ghidul tău: 5 Hack-uri de Energie' : lang === 'fr' ? 'Votre guide: 5 Astuces Énergie' : 'Your Guide: 5 Energy Hacks';
-  const guideUrl = 'https://rhythmofleaders.com/guide';
-  const html = `
-    <h2>${subject}</h2>
-    <p>Salut!</p>
-    <p>Poți descărca ghidul PDF de aici:</p>
-    <a href="${guideUrl}" style="font-size:1.2em;color:#0d9488;">Descarcă PDF</a>
-    <p>Dacă ai întrebări, răspunde direct la acest email.</p>
-    <hr />
-    <p>Rhythm of Leaders</p>
-  `;
+  const guideUrl = process.env.GUIDE_PDF_URL || 'https://rhythmofleaders.pro/guide';
+  const { subject, html } = buildGuideEmail(lang || 'ro', guideUrl);
   try {
     await sendGuideEmail({ clientEmail: email, subject, html });
     res.json({ ok: true });
@@ -62,25 +54,31 @@ app.post('/api/guide', async (req, res) => {
 app.post('/api/microchallenge', async (req, res) => {
   const { email, lang, challenge } = req.body;
   if (!email || !challenge) return res.status(400).json({ error: 'Missing email or challenge' });
-
   const adminEmail = 'iulian@rhythmofleaders.pro';
-  const clientEmail = email;
-  const subject = lang === 'ro' ? 'Provocarea ta personalizată' : lang === 'fr' ? 'Votre défi personnalisé' : 'Your Personalized Challenge';
-  const html = `
-    <h2>${subject}</h2>
-    <p><b>Challenge:</b> ${challenge.title || challenge.challenge}</p>
-    <p><b>Description:</b> ${challenge.description || challenge.challenge}</p>
-    <p><b>Timeframe:</b> ${challenge.timeframe || challenge.duration}</p>
-    <p><b>Level:</b> ${challenge.difficulty || challenge.level}</p>
-    <p><a href='https://calendly.com/iulian-cyberbuildsolutions/30min?back=1'>Book a free call</a></p>
-    <hr />
-    <p>This is an automated message from Rhythm of Leaders.</p>
-  `;
+  const { subject, html } = buildChallengeEmail(lang || 'ro', challenge);
   try {
-    await sendMicrochallengeEmail({ adminEmail, clientEmail, subject, html });
+    await sendMicrochallengeEmail({ adminEmail, clientEmail: email, subject, html });
     res.json({ ok: true });
   } catch (err) {
     console.error('Microchallenge email error:', err);
+    res.status(500).json({ error: 'Failed to send email' });
+  }
+});
+
+// POST /api/consultation
+app.post('/api/consultation', async (req, res) => {
+  const { name, email, phone, location, message, lang } = req.body;
+  if (!email || !name) return res.status(400).json({ error: 'Missing name or email' });
+  const adminEmail = 'iulian@rhythmofleaders.pro';
+  const data = { name, email, phone, location, message };
+  const { subject: subjectClient, html: htmlClient } = buildConsultationEmail(lang || 'ro', data, false);
+  const { subject: subjectAdmin, html: htmlAdmin } = buildConsultationEmail(lang || 'ro', data, true);
+  try {
+    await sendGuideEmail({ clientEmail: email, subject: subjectClient, html: htmlClient });
+    await sendGuideEmail({ clientEmail: adminEmail, subject: subjectAdmin, html: htmlAdmin });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Consultation email error:', err);
     res.status(500).json({ error: 'Failed to send email' });
   }
 });
@@ -193,25 +191,14 @@ app.post('/api/reservations', async (req, res) => {
   // Prepare email content
   const adminEmail = 'iulian@rhythmofleaders.pro';
   const clientEmail = newReservation.participant_email;
-  const subject = 'New Retreat Reservation - Rhythm of Leaders';
-  const html = `
-    <h2>New Reservation Received</h2>
-    <p><b>Name:</b> ${newReservation.participant_name}</p>
-    <p><b>Email:</b> ${newReservation.participant_email}</p>
-    <p><b>Phone:</b> ${newReservation.participant_phone}</p>
-    <p><b>Location:</b> ${newReservation.camp_location}</p>
-    <p><b>Room Type:</b> ${newReservation.room_type}</p>
-    <p><b>Pricing Tier:</b> ${newReservation.pricing_tier}</p>
-    <p><b>Extras:</b> ${(newReservation.extras || []).join(', ')}</p>
-    <p><b>Total Estimate:</b> €${newReservation.total_estimate}</p>
-    <p><b>Status:</b> ${newReservation.status}</p>
-    <p><b>Payment Status:</b> ${newReservation.payment_status}</p>
-    <p><b>Notes:</b> ${newReservation.notes}</p>
-    <hr />
-    <p>This is an automated notification from Rhythm of Leaders.</p>
-  `;
+  const lang = newReservation.lang || 'ro';
+  const { subject: subjectClient, html: htmlClient } = buildReservationEmail(lang, newReservation, false);
+  const { subject: subjectAdmin, html: htmlAdmin } = buildReservationEmail(lang, newReservation, true);
   try {
-    await sendReservationEmail({ adminEmail, clientEmail, subject, html });
+    await sendReservationEmail({ adminEmail, clientEmail, subject: subjectAdmin, html: htmlAdmin });
+    if (clientEmail) {
+      await sendReservationEmail({ adminEmail: null, clientEmail, subject: subjectClient, html: htmlClient });
+    }
   } catch (err) {
     console.error('Email send error:', err);
     // Don't block reservation creation if email fails

@@ -6,8 +6,9 @@ import {
   Heart, Brain, Dumbbell, Wind, Sparkles, Shield,
   Clock, Euro, Star, ArrowRight, Mail, Phone, User
 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 import Navbar from '../components/landing/Navbar';
 import CostCalculator from '../components/retreat/CostCalculator';
 import LocationGallery from '../components/retreat/LocationGallery';
@@ -679,17 +680,23 @@ export default function Retreat() {
     setSubmitStatus(null);
 
     try {
-      await base44.entities.Lead.create({
-        email: formData.email,
-        source: 'retreat_form',
-        status: 'new',
-        language: lang,
-        notes: `Name: ${formData.name}\nPhone: ${formData.phone}\nLocation: ${formData.location}\nMessage: ${formData.message}`
+      const response = await fetch(`${API_URL}/api/consultation`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          location: formData.location,
+          message: formData.message,
+          lang,
+        }),
       });
+      if (!response.ok) throw new Error('Failed');
 
       setSubmitStatus('success');
-      setFormData({ name: '', email: '', phone: '', message: '' });
-      
+      setFormData({ name: '', email: '', phone: '', message: '', location: 'chamonix' });
+
       setTimeout(() => {
         setShowForm(false);
         setSubmitStatus(null);

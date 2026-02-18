@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Logo from './Logo';
 
@@ -29,6 +29,7 @@ export default function Navbar({ lang, setLang }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const t = content[lang] || content.en;
 
   useEffect(() => {
@@ -44,11 +45,10 @@ export default function Navbar({ lang, setLang }) {
 
   const scrollTo = (id) => {
     setMobileOpen(false);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    const isOnHome = location.pathname === '/' || location.pathname === createPageUrl('Home');
+    if (isOnHome) {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // Element not on current page — navigate to Home and scroll there
       sessionStorage.setItem('scrollToSection', id);
       navigate(createPageUrl('Home'));
     }
