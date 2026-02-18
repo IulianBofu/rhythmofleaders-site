@@ -14,14 +14,14 @@ const testimonials = {
       },
       {
         name: 'Maria D.',
-        role: 'Marketing Director',
+        role: 'Director Marketing',
         image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face',
         text: 'Hiking-urile zilnice m-au forțat să-mi eliberez mintea de to-do lists. Am avut breakthrough-uri în probleme pe care le tot amânam de luni.',
         rating: 5
       },
       {
         name: 'Radu M.',
-        role: 'Business Consultant',
+        role: 'Consultant Business',
         image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
         text: 'Prețul pare mare până înțelegi valoarea. Am implementat 2 idei strategice majore care au generat ROI de 10x față de investiție în primele 3 luni.',
         rating: 5
@@ -144,6 +144,77 @@ const testimonials = {
         rating: 5
       }
     ]
+  },
+  transfagarasan: {
+    ro: [
+      {
+        name: 'Bogdan C.',
+        role: 'Antreprenor, Construcții',
+        image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face',
+        text: 'Transfăgărășanul ți-e mai apropiat de suflet decât orice peisaj din lume. Să combini asta cu coaching de calitate înaltă a fost o experiență de neuitat.',
+        rating: 5
+      },
+      {
+        name: 'Ioana P.',
+        role: 'COO, Logistică',
+        image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face',
+        text: 'Carpații te schimbă. Cei 5 zile de hiking și sesiuni 1:1 m-au ajutat să iau decizia pe care o amânam de un an. Recomand cu inima deschisă.',
+        rating: 5
+      },
+      {
+        name: 'Mihai R.',
+        role: 'CEO, Producție',
+        image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face',
+        text: 'Am venit sceptic, am plecat transformat. Combinația dintre natura sălbatică românească și coaching-ul aplicat este unică în Europa.',
+        rating: 5
+      }
+    ],
+    en: [
+      {
+        name: 'Bogdan C.',
+        role: 'Entrepreneur, Construction',
+        image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face',
+        text: 'Transfăgărășan is closer to the soul than any landscape in the world. Combining that with high-quality coaching was an unforgettable experience.',
+        rating: 5
+      },
+      {
+        name: 'Ioana P.',
+        role: 'COO, Logistics',
+        image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face',
+        text: 'The Carpathians change you. The 5 days of hiking and 1:1 sessions helped me make a decision I\'d been postponing for a year. I recommend it wholeheartedly.',
+        rating: 5
+      },
+      {
+        name: 'Mihai R.',
+        role: 'CEO, Manufacturing',
+        image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face',
+        text: 'I came skeptical, I left transformed. The combination of Romanian wild nature and applied coaching is unique in Europe.',
+        rating: 5
+      }
+    ],
+    fr: [
+      {
+        name: 'Bogdan C.',
+        role: 'Entrepreneur, Construction',
+        image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face',
+        text: 'Transfăgărășan est plus proche de l\'âme que n\'importe quel paysage dans le monde. Combiner cela avec un coaching de haute qualité a été une expérience inoubliable.',
+        rating: 5
+      },
+      {
+        name: 'Ioana P.',
+        role: 'COO, Logistique',
+        image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face',
+        text: 'Les Carpates vous transforment. Les 5 jours de randonnée et de sessions 1:1 m\'ont aidé à prendre une décision que je repoussais depuis un an. Je le recommande chaleureusement.',
+        rating: 5
+      },
+      {
+        name: 'Mihai R.',
+        role: 'CEO, Production',
+        image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face',
+        text: 'Je suis venu sceptique, je suis parti transformé. La combinaison de la nature sauvage roumaine et du coaching appliqué est unique en Europe.',
+        rating: 5
+      }
+    ]
   }
 };
 
@@ -154,13 +225,14 @@ export default function LocationTestimonials({ location, lang }) {
     fr: 'Ce que disent les participants'
   };
 
+  const l = lang || 'ro';
   const locationData = testimonials[location] || testimonials.chamonix;
-  const currentTestimonials = locationData[lang] || locationData.ro;
+  const currentTestimonials = locationData[l] || locationData.ro;
 
   return (
     <div className="py-16">
-      <h3 className="text-3xl font-black text-slate-900 text-center mb-12">{title[lang]}</h3>
-      
+      <h3 className="text-3xl font-black text-slate-900 text-center mb-12">{title[l]}</h3>
+
       <div className="grid md:grid-cols-3 gap-8">
         {currentTestimonials.map((testimonial, i) => (
           <motion.div

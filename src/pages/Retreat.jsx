@@ -6,9 +6,118 @@ import {
   Heart, Brain, Dumbbell, Wind, Sparkles, Shield,
   Clock, Euro, Star, ArrowRight, Mail, Phone, User
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+const RETREAT_CONFIG = {
+  deposit_percentage: 30,
+  locations: [
+    {
+      id: 'chamonix',
+      name_ro: 'Chamonix, Franța - Alpi',
+      name_en: 'Chamonix, France - Alps',
+      name_fr: 'Chamonix, France - Alpes',
+      description_ro: 'Alpi francezi, vârfuri impresionante',
+      description_en: 'French Alps, impressive peaks',
+      description_fr: 'Alpes françaises, sommets impressionnants'
+    },
+    {
+      id: 'corbu',
+      name_ro: 'Corbu, CT - Marea Neagră',
+      name_en: 'Corbu, CT - Black Sea',
+      name_fr: 'Corbu, CT - Mer Noire',
+      description_ro: 'Litoral românesc, plaje sălbatice',
+      description_en: 'Romanian coast, wild beaches',
+      description_fr: 'Côte roumaine, plages sauvages'
+    },
+    {
+      id: 'transfagarasan',
+      name_ro: 'Transfăgărășan, România',
+      name_en: 'Transfăgărășan, Romania',
+      name_fr: 'Transfăgărășan, Roumanie',
+      description_ro: 'Cel mai spectaculos drum montan din România',
+      description_en: "Romania's most spectacular mountain road",
+      description_fr: 'La plus spectaculaire route de montagne de Roumanie'
+    }
+  ],
+  room_types: [
+    {
+      id: 'shared',
+      name_ro: 'Cameră dublă (împărțită)',
+      name_en: 'Twin room (shared)',
+      name_fr: 'Chambre double (partagée)',
+      price_adjustment_ro: 0,
+      price_adjustment_en: 0,
+      price_adjustment_fr: 0
+    },
+    {
+      id: 'single',
+      name_ro: 'Cameră single',
+      name_en: 'Single room',
+      name_fr: 'Chambre simple',
+      price_adjustment_ro: 200,
+      price_adjustment_en: 200,
+      price_adjustment_fr: 200
+    }
+  ],
+  pricing_tiers: [
+    {
+      id: 'early_bird',
+      name_ro: 'Early Bird',
+      name_en: 'Early Bird',
+      name_fr: 'Early Bird',
+      base_price_ro: 1499,
+      base_price_en: 1499,
+      base_price_fr: 1499
+    },
+    {
+      id: 'standard',
+      name_ro: 'Standard',
+      name_en: 'Standard',
+      name_fr: 'Standard',
+      base_price_ro: 1799,
+      base_price_en: 1799,
+      base_price_fr: 1799
+    },
+    {
+      id: 'last_spots',
+      name_ro: 'Last Spots',
+      name_en: 'Last Spots',
+      name_fr: 'Dernières Places',
+      base_price_ro: 1999,
+      base_price_en: 1999,
+      base_price_fr: 1999
+    }
+  ],
+  extras: [
+    {
+      id: 'airport_transfer',
+      name_ro: 'Transfer aeroport',
+      name_en: 'Airport transfer',
+      name_fr: 'Transfert aéroport',
+      price_ro: 80,
+      price_en: 80,
+      price_fr: 80
+    },
+    {
+      id: 'nutrition_plan',
+      name_ro: 'Plan nutrițional personalizat',
+      name_en: 'Personalized nutrition plan',
+      name_fr: 'Plan nutritionnel personnalisé',
+      price_ro: 120,
+      price_en: 120,
+      price_fr: 120
+    },
+    {
+      id: 'equipment',
+      name_ro: 'Echipament hiking (împrumut)',
+      name_en: 'Hiking equipment (loan)',
+      name_fr: 'Équipement randonnée (prêt)',
+      price_ro: 50,
+      price_en: 50,
+      price_fr: 50
+    }
+  ]
+};
 import Navbar from '../components/landing/Navbar';
 import CostCalculator from '../components/retreat/CostCalculator';
 import LocationGallery from '../components/retreat/LocationGallery';
@@ -192,7 +301,7 @@ const content = {
         'Community support group'
       ],
       no: [
-        'Transport până în Chamonix',
+        'Transport până la destinație',
         'Echipament personal (hiking boots, etc)',
         'Asigurare de călătorie',
         'Cheltuieli personale'
@@ -446,7 +555,7 @@ const content = {
         'Community support group'
       ],
       no: [
-        'Transport to Chamonix',
+        'Transport to destination',
         'Personal equipment (hiking boots, etc)',
         'Travel insurance',
         'Personal expenses'
@@ -659,13 +768,7 @@ export default function Retreat() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const { data: retreatConfig } = useQuery({
-    queryKey: ['retreat-config'],
-    queryFn: async () => {
-      const configs = await base44.entities.RetreatConfig.list();
-      return configs[0] || null;
-    }
-  });
+  const retreatConfig = RETREAT_CONFIG;
 
   const t = content[lang];
 
