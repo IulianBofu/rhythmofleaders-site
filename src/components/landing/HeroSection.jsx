@@ -58,7 +58,7 @@ export default function HeroSection({ lang }) {
         />
         
         {/* Floating orbs */}
-        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px]" />
       </div>
 
@@ -105,7 +105,7 @@ export default function HeroSection({ lang }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="text-lg md:text-xl text-white/60 max-w-3xl mx-auto mb-14 leading-relaxed font-light"
+            className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-14 leading-relaxed font-light"
           >
             {t.subtitle}
           </motion.p>
@@ -147,7 +147,7 @@ export default function HeroSection({ lang }) {
           onClick={() => document.getElementById('why-me')?.scrollIntoView({ behavior: 'smooth' })}
         >
           <div className="flex flex-col items-center gap-3 text-white/40 hover:text-white/60 transition-colors">
-            <span className="text-xs tracking-[0.3em] uppercase">{t.scroll}</span>
+            <span className="text-sm tracking-[0.3em] uppercase">{t.scroll}</span>
             <motion.div
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}

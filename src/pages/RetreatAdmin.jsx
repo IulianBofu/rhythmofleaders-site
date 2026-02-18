@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { base44 } from '@/api/base44Client';
-import { Eye, EyeOff, Plus, Trash2, Save, Lock } from 'lucide-react';
+import { Eye, EyeOff, Plus, Trash2, Save, Lock, Image, GripVertical, X, AlertTriangle } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const ADMIN_PASSWORD = 'Panzer89$$$';
 
 export default function RetreatAdmin() {
   const [password, setPassword] = useState('');
@@ -11,13 +13,10 @@ export default function RetreatAdmin() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('locations');
   const [saving, setSaving] = useState(false);
-
-  const ADMIN_PASSWORD = 'Panzer89$$$';
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadConfig();
-    }
+    if (isAuthenticated) loadConfig();
   }, [isAuthenticated]);
 
   const handleLogin = (e) => {
@@ -33,14 +32,16 @@ export default function RetreatAdmin() {
   const loadConfig = async () => {
     setLoading(true);
     try {
-      const configs = await base44.entities.RetreatConfig.list();
-      if (configs.length > 0) {
-        setConfig(configs[0]);
+      const res = await fetch(`${API_URL}/api/retreat-config`, {
+        headers: { 'Authorization': 'Basic ' + btoa('admin:' + ADMIN_PASSWORD) }
+      });
+      if (res.ok) {
+        setConfig(await res.json());
       } else {
         setConfig(getDefaultConfig());
       }
-    } catch (err) {
-      console.error('Error loading config:', err);
+    } catch {
+      setConfig(getDefaultConfig());
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,8 @@ export default function RetreatAdmin() {
         description_ro: 'Alpi, natură spectaculoasă',
         description_en: 'Alps, spectacular nature',
         description_fr: 'Alpes, nature spectaculaire',
-        image_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+        hero_image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+        photos: [],
         capacity: 8
       },
       {
@@ -67,7 +69,20 @@ export default function RetreatAdmin() {
         description_ro: 'Marea Neagră, relaxare',
         description_en: 'Black Sea, relaxation',
         description_fr: 'Mer Noire, détente',
-        image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop',
+        hero_image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop',
+        photos: [],
+        capacity: 8
+      },
+      {
+        id: 'transfagarasan',
+        name_ro: 'Transfăgărășan, România',
+        name_en: 'Transfăgărășan, Romania',
+        name_fr: 'Transfăgărășan, Roumanie',
+        description_ro: 'Cel mai spectaculos drum montan',
+        description_en: "Romania's most spectacular mountain road",
+        description_fr: 'La plus spectaculaire route de montagne',
+        hero_image: '',
+        photos: [],
         capacity: 8
       }
     ],
@@ -85,27 +100,44 @@ export default function RetreatAdmin() {
       { id: 'transfer', name_ro: 'Transfer Aeroport', name_en: 'Airport Transfer', name_fr: 'Transfert Aéroport', price_ro: 150, price_en: 150, price_fr: 150 },
       { id: 'private_coaching', name_ro: 'Coaching Privat', name_en: 'Private Coaching', name_fr: 'Coaching Privé', price_ro: 300, price_en: 300, price_fr: 300 }
     ],
-    deposit_percentage: 30,
-    payment_terms_ro: 'Avans 30%. Restul cu 14 zile înainte.',
-    payment_terms_en: '30% deposit. Balance 14 days before.',
-    payment_terms_fr: '30% acompte. Solde 14 jours avant.'
+    deposit_percentage: 30
   });
 
   const saveConfig = async () => {
     setSaving(true);
     try {
-      if (config.id) {
-        await base44.entities.RetreatConfig.update(config.id, config);
+      const res = await fetch(`${API_URL}/api/retreat-config`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + btoa('admin:' + ADMIN_PASSWORD)
+        },
+        body: JSON.stringify(config)
+      });
+      if (res.ok) {
+        alert('Configurație salvată cu succes!');
       } else {
-        await base44.entities.RetreatConfig.create(config);
+        throw new Error('Save failed');
       }
-      alert('Configurație salvată cu succes!');
-    } catch (err) {
-      console.error('Error saving config:', err);
-      alert('Eroare la salvare');
+    } catch {
+      alert('Eroare la salvare. Verifică conexiunea la server.');
     } finally {
       setSaving(false);
     }
+  };
+
+  const confirmDelete = (type, idx) => {
+    setDeleteConfirm({ type, idx });
+  };
+
+  const executeDelete = () => {
+    if (!deleteConfirm) return;
+    const { type, idx } = deleteConfirm;
+    setConfig({
+      ...config,
+      [type]: config[type].filter((_, i) => i !== idx)
+    });
+    setDeleteConfirm(null);
   };
 
   if (!isAuthenticated) {
@@ -120,38 +152,20 @@ export default function RetreatAdmin() {
             <Lock className="w-8 h-8 text-teal-600" />
             <h1 className="text-2xl font-black text-slate-900">Panou Admin</h1>
           </div>
-
           <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Parolă Admin
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Introduceți parola"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-slate-400" />
-                  ) : (
-                    <Eye className="w-5 h-5 text-slate-400" />
-                  )}
-                </button>
-              </div>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Parolă admin"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500"
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" aria-label="Toggle password">
+                {showPassword ? <EyeOff className="w-5 h-5 text-slate-400" /> : <Eye className="w-5 h-5 text-slate-400" />}
+              </button>
             </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-bold rounded-xl hover:shadow-lg transition-all"
-            >
+            <button type="submit" className="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-bold rounded-xl hover:shadow-lg transition-all">
               Accesare
             </button>
           </form>
@@ -160,7 +174,7 @@ export default function RetreatAdmin() {
     );
   }
 
-  if (!config) {
+  if (!config || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full" />
@@ -168,57 +182,48 @@ export default function RetreatAdmin() {
     );
   }
 
+  const tabs = [
+    { id: 'locations', label: 'Locații' },
+    { id: 'photos', label: 'Poze' },
+    { id: 'rooms', label: 'Camere' },
+    { id: 'pricing', label: 'Preț' },
+    { id: 'extras', label: 'Extras' }
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-black text-slate-900">Admin Tabere</h1>
-          <button
-            onClick={() => setIsAuthenticated(false)}
-            className="px-6 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
-          >
+          <button onClick={() => setIsAuthenticated(false)} className="px-6 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600">
             Deconectare
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-slate-200">
-          {['locations', 'rooms', 'pricing', 'extras'].map((tab) => (
+        <div className="flex gap-2 mb-8 border-b border-slate-200 overflow-x-auto">
+          {tabs.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 font-semibold border-b-2 transition-all ${
-                activeTab === tab
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-6 py-3 font-semibold border-b-2 transition-all whitespace-nowrap ${
+                activeTab === tab.id
                   ? 'border-teal-600 text-teal-600'
                   : 'border-transparent text-slate-600 hover:text-slate-900'
               }`}
             >
-              {tab === 'locations'
-                ? 'Locații'
-                : tab === 'rooms'
-                ? 'Camere'
-                : tab === 'pricing'
-                ? 'Preț'
-                : 'Extras'}
+              {tab.label}
             </button>
           ))}
         </div>
 
         {/* Content */}
         <div className="space-y-6">
-          {activeTab === 'locations' && (
-            <LocationsEditor config={config} setConfig={setConfig} />
-          )}
-          {activeTab === 'rooms' && (
-            <RoomsEditor config={config} setConfig={setConfig} />
-          )}
-          {activeTab === 'pricing' && (
-            <PricingEditor config={config} setConfig={setConfig} />
-          )}
-          {activeTab === 'extras' && (
-            <ExtrasEditor config={config} setConfig={setConfig} />
-          )}
+          {activeTab === 'locations' && <LocationsEditor config={config} setConfig={setConfig} onDelete={confirmDelete} />}
+          {activeTab === 'photos' && <PhotosEditor config={config} setConfig={setConfig} />}
+          {activeTab === 'rooms' && <RoomsEditor config={config} setConfig={setConfig} />}
+          {activeTab === 'pricing' && <PricingEditor config={config} setConfig={setConfig} />}
+          {activeTab === 'extras' && <ExtrasEditor config={config} setConfig={setConfig} onDelete={confirmDelete} />}
         </div>
 
         {/* Save Button */}
@@ -233,26 +238,45 @@ export default function RetreatAdmin() {
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-xl">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">Confirmare ștergere</h3>
+            </div>
+            <p className="text-slate-600 mb-6">Ești sigur că vrei să ștergi acest element? Acțiunea este ireversibilă.</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50">
+                Anulează
+              </button>
+              <button onClick={executeDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">
+                Șterge
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function LocationsEditor({ config, setConfig }) {
+function LocationsEditor({ config, setConfig, onDelete }) {
   const addLocation = () => {
-    const newLocation = {
-      id: `location_${Date.now()}`,
-      name_ro: '',
-      name_en: '',
-      name_fr: '',
-      description_ro: '',
-      description_en: '',
-      description_fr: '',
-      image_url: '',
-      capacity: 8
-    };
     setConfig({
       ...config,
-      locations: [...config.locations, newLocation]
+      locations: [...config.locations, {
+        id: `location_${Date.now()}`,
+        name_ro: '', name_en: '', name_fr: '',
+        description_ro: '', description_en: '', description_fr: '',
+        hero_image: '',
+        photos: [],
+        capacity: 8
+      }]
     });
   };
 
@@ -262,99 +286,193 @@ function LocationsEditor({ config, setConfig }) {
     setConfig({ ...config, locations: updated });
   };
 
-  const deleteLocation = (idx) => {
-    setConfig({
-      ...config,
-      locations: config.locations.filter((_, i) => i !== idx)
-    });
+  return (
+    <div className="space-y-6">
+      {config.locations.map((loc, idx) => (
+        <div key={loc.id} className="bg-white rounded-2xl p-6 border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-slate-900">{loc.name_ro || loc.id}</h3>
+            <span className="text-xs text-slate-400">ID: {loc.id}</span>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume RO</label>
+              <input type="text" value={loc.name_ro} onChange={(e) => updateLocation(idx, 'name_ro', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume EN</label>
+              <input type="text" value={loc.name_en} onChange={(e) => updateLocation(idx, 'name_en', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume FR</label>
+              <input type="text" value={loc.name_fr} onChange={(e) => updateLocation(idx, 'name_fr', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Descriere RO</label>
+              <textarea value={loc.description_ro} onChange={(e) => updateLocation(idx, 'description_ro', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" rows="2" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Descriere EN</label>
+              <textarea value={loc.description_en} onChange={(e) => updateLocation(idx, 'description_en', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" rows="2" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Descriere FR</label>
+              <textarea value={loc.description_fr} onChange={(e) => updateLocation(idx, 'description_fr', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" rows="2" />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Hero Image URL</label>
+              <input type="text" value={loc.hero_image || ''} onChange={(e) => updateLocation(idx, 'hero_image', e.target.value)} placeholder="https://..." className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+              {loc.hero_image && (
+                <img src={loc.hero_image} alt="Hero preview" className="mt-2 h-24 w-full object-cover rounded-lg" />
+              )}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Capacitate</label>
+              <input type="number" value={loc.capacity} onChange={(e) => updateLocation(idx, 'capacity', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+          </div>
+
+          <button onClick={() => onDelete('locations', idx)} className="text-red-600 hover:text-red-700 font-semibold flex items-center gap-1 text-sm">
+            <Trash2 className="w-4 h-4" /> Șterge locația
+          </button>
+        </div>
+      ))}
+      <button onClick={addLocation} className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700">
+        <Plus className="w-5 h-5" /> Adaugă Locație
+      </button>
+    </div>
+  );
+}
+
+function PhotosEditor({ config, setConfig }) {
+  const [selectedLocation, setSelectedLocation] = useState(0);
+  const [newPhotoUrl, setNewPhotoUrl] = useState('');
+
+  const loc = config.locations[selectedLocation];
+  if (!loc) return null;
+
+  const photos = loc.photos || [];
+
+  const addPhoto = () => {
+    if (!newPhotoUrl.trim()) return;
+    const updated = [...config.locations];
+    updated[selectedLocation] = {
+      ...updated[selectedLocation],
+      photos: [...photos, { url: newPhotoUrl.trim(), caption: '' }]
+    };
+    setConfig({ ...config, locations: updated });
+    setNewPhotoUrl('');
+  };
+
+  const removePhoto = (photoIdx) => {
+    const updated = [...config.locations];
+    updated[selectedLocation] = {
+      ...updated[selectedLocation],
+      photos: photos.filter((_, i) => i !== photoIdx)
+    };
+    setConfig({ ...config, locations: updated });
+  };
+
+  const updateCaption = (photoIdx, caption) => {
+    const updated = [...config.locations];
+    const updatedPhotos = [...photos];
+    updatedPhotos[photoIdx] = { ...updatedPhotos[photoIdx], caption };
+    updated[selectedLocation] = { ...updated[selectedLocation], photos: updatedPhotos };
+    setConfig({ ...config, locations: updated });
+  };
+
+  const movePhoto = (fromIdx, toIdx) => {
+    if (toIdx < 0 || toIdx >= photos.length) return;
+    const updated = [...config.locations];
+    const updatedPhotos = [...photos];
+    const [moved] = updatedPhotos.splice(fromIdx, 1);
+    updatedPhotos.splice(toIdx, 0, moved);
+    updated[selectedLocation] = { ...updated[selectedLocation], photos: updatedPhotos };
+    setConfig({ ...config, locations: updated });
   };
 
   return (
     <div className="space-y-6">
-      {config.locations.map((loc, idx) => (
-        <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-200">
-          <div className="grid md:grid-cols-2 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="ID (ex: chamonix)"
-              value={loc.id}
-              onChange={(e) => updateLocation(idx, 'id', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-              disabled
-            />
-            <input
-              type="number"
-              placeholder="Capacitate"
-              value={loc.capacity}
-              onChange={(e) => updateLocation(idx, 'capacity', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Nume RO"
-              value={loc.name_ro}
-              onChange={(e) => updateLocation(idx, 'name_ro', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Nume EN"
-              value={loc.name_en}
-              onChange={(e) => updateLocation(idx, 'name_en', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Nume FR"
-              value={loc.name_fr}
-              onChange={(e) => updateLocation(idx, 'name_fr', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="URL Imagine"
-              value={loc.image_url}
-              onChange={(e) => updateLocation(idx, 'image_url', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-          </div>
-          <div className="grid md:grid-cols-3 gap-4 mb-4">
-            <textarea
-              placeholder="Descriere RO"
-              value={loc.description_ro}
-              onChange={(e) => updateLocation(idx, 'description_ro', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-              rows="3"
-            />
-            <textarea
-              placeholder="Descriere EN"
-              value={loc.description_en}
-              onChange={(e) => updateLocation(idx, 'description_en', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-              rows="3"
-            />
-            <textarea
-              placeholder="Descriere FR"
-              value={loc.description_fr}
-              onChange={(e) => updateLocation(idx, 'description_fr', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-              rows="3"
-            />
-          </div>
+      {/* Location selector */}
+      <div className="flex gap-2 flex-wrap">
+        {config.locations.map((l, i) => (
           <button
-            onClick={() => deleteLocation(idx)}
-            className="text-red-600 hover:text-red-700 font-semibold flex items-center gap-1"
+            key={l.id}
+            onClick={() => setSelectedLocation(i)}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+              selectedLocation === i
+                ? 'bg-teal-600 text-white'
+                : 'bg-white border border-slate-200 text-slate-700 hover:border-teal-300'
+            }`}
           >
-            <Trash2 className="w-4 h-4" /> Șterge
+            {l.name_ro || l.id}
+          </button>
+        ))}
+      </div>
+
+      {/* Add photo */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200">
+        <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <Image className="w-5 h-5 text-teal-600" />
+          Galerie foto — {loc.name_ro || loc.id}
+        </h3>
+
+        <div className="flex gap-3 mb-6">
+          <input
+            type="text"
+            value={newPhotoUrl}
+            onChange={(e) => setNewPhotoUrl(e.target.value)}
+            placeholder="URL imagine (https://...)"
+            className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm"
+            onKeyDown={(e) => e.key === 'Enter' && addPhoto()}
+          />
+          <button onClick={addPhoto} className="px-4 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 flex items-center gap-1">
+            <Plus className="w-4 h-4" /> Adaugă
           </button>
         </div>
-      ))}
-      <button
-        onClick={addLocation}
-        className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700"
-      >
-        <Plus className="w-5 h-5" /> Adaugă Locație
-      </button>
+
+        {/* Photo grid */}
+        {photos.length === 0 ? (
+          <p className="text-center py-8 text-slate-400">Nicio poză adăugată. Adaugă URL-uri de imagini.</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {photos.map((photo, i) => (
+              <div key={i} className="relative group rounded-xl overflow-hidden border border-slate-200">
+                <img src={photo.url} alt={photo.caption || `Photo ${i + 1}`} className="w-full h-40 object-cover" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  {i > 0 && (
+                    <button onClick={() => movePhoto(i, i - 1)} className="p-1.5 bg-white rounded-lg text-slate-700 hover:bg-slate-100" title="Move left">
+                      ←
+                    </button>
+                  )}
+                  {i < photos.length - 1 && (
+                    <button onClick={() => movePhoto(i, i + 1)} className="p-1.5 bg-white rounded-lg text-slate-700 hover:bg-slate-100" title="Move right">
+                      →
+                    </button>
+                  )}
+                  <button onClick={() => removePhoto(i)} className="p-1.5 bg-red-500 rounded-lg text-white hover:bg-red-600" title="Delete">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={photo.caption || ''}
+                  onChange={(e) => updateCaption(i, e.target.value)}
+                  placeholder="Caption..."
+                  className="w-full px-2 py-1.5 text-xs border-t border-slate-200 bg-white"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -369,50 +487,34 @@ function RoomsEditor({ config, setConfig }) {
   return (
     <div className="space-y-6">
       {config.room_types.map((room, idx) => (
-        <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-200">
-          <div className="grid md:grid-cols-4 gap-4">
-            <input
-              type="text"
-              placeholder="Nume RO"
-              value={room.name_ro}
-              onChange={(e) => updateRoom(idx, 'name_ro', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Nume EN"
-              value={room.name_en}
-              onChange={(e) => updateRoom(idx, 'name_en', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Nume FR"
-              value={room.name_fr}
-              onChange={(e) => updateRoom(idx, 'name_fr', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Ajustare preț RO"
-              value={room.price_adjustment_ro}
-              onChange={(e) => updateRoom(idx, 'price_adjustment_ro', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Ajustare preț EN"
-              value={room.price_adjustment_en}
-              onChange={(e) => updateRoom(idx, 'price_adjustment_en', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Ajustare preț FR"
-              value={room.price_adjustment_fr}
-              onChange={(e) => updateRoom(idx, 'price_adjustment_fr', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
+        <div key={room.id} className="bg-white rounded-2xl p-6 border border-slate-200">
+          <div className="grid md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume RO</label>
+              <input type="text" value={room.name_ro} onChange={(e) => updateRoom(idx, 'name_ro', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume EN</label>
+              <input type="text" value={room.name_en} onChange={(e) => updateRoom(idx, 'name_en', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume FR</label>
+              <input type="text" value={room.name_fr} onChange={(e) => updateRoom(idx, 'name_fr', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Ajustare preț RO (€)</label>
+              <input type="number" value={room.price_adjustment_ro} onChange={(e) => updateRoom(idx, 'price_adjustment_ro', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Ajustare preț EN (€)</label>
+              <input type="number" value={room.price_adjustment_en} onChange={(e) => updateRoom(idx, 'price_adjustment_en', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Ajustare preț FR (€)</label>
+              <input type="number" value={room.price_adjustment_fr} onChange={(e) => updateRoom(idx, 'price_adjustment_fr', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
           </div>
         </div>
       ))}
@@ -427,67 +529,53 @@ function PricingEditor({ config, setConfig }) {
     setConfig({ ...config, pricing_tiers: updated });
   };
 
-  const updateDeposit = (value) => {
-    setConfig({ ...config, deposit_percentage: value });
-  };
-
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl p-6 border border-slate-200">
-        <label className="block font-semibold text-slate-900 mb-2">Procent Avans</label>
-        <input
-          type="number"
-          value={config.deposit_percentage}
-          onChange={(e) => updateDeposit(parseInt(e.target.value))}
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg"
-        />
+        <label className="block text-xs font-medium text-slate-500 mb-1">Procent Avans (%)</label>
+        <input type="number" value={config.deposit_percentage} onChange={(e) => setConfig({ ...config, deposit_percentage: parseInt(e.target.value) || 0 })} className="w-32 px-3 py-2 border border-slate-300 rounded-lg text-sm" />
       </div>
 
       {config.pricing_tiers.map((tier, idx) => (
-        <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-200">
-          <div className="grid md:grid-cols-4 gap-4">
-            <input
-              type="text"
-              placeholder="Nume RO"
-              value={tier.name_ro}
-              onChange={(e) => updateTier(idx, 'name_ro', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Preț RO"
-              value={tier.base_price_ro}
-              onChange={(e) => updateTier(idx, 'base_price_ro', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Preț EN"
-              value={tier.base_price_en}
-              onChange={(e) => updateTier(idx, 'base_price_en', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Preț FR"
-              value={tier.base_price_fr}
-              onChange={(e) => updateTier(idx, 'base_price_fr', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Discount %"
-              value={tier.discount_percentage}
-              onChange={(e) => updateTier(idx, 'discount_percentage', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Locuri disponibile"
-              value={tier.spots_available}
-              onChange={(e) => updateTier(idx, 'spots_available', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
+        <div key={tier.id} className="bg-white rounded-2xl p-6 border border-slate-200">
+          <h4 className="font-bold text-slate-900 mb-4">{tier.name_ro || tier.id}</h4>
+          <div className="grid md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume RO</label>
+              <input type="text" value={tier.name_ro} onChange={(e) => updateTier(idx, 'name_ro', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume EN</label>
+              <input type="text" value={tier.name_en} onChange={(e) => updateTier(idx, 'name_en', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume FR</label>
+              <input type="text" value={tier.name_fr} onChange={(e) => updateTier(idx, 'name_fr', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Preț RO (€)</label>
+              <input type="number" value={tier.base_price_ro} onChange={(e) => updateTier(idx, 'base_price_ro', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Preț EN (€)</label>
+              <input type="number" value={tier.base_price_en} onChange={(e) => updateTier(idx, 'base_price_en', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Preț FR (€)</label>
+              <input type="number" value={tier.base_price_fr} onChange={(e) => updateTier(idx, 'base_price_fr', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Discount (%)</label>
+              <input type="number" value={tier.discount_percentage} onChange={(e) => updateTier(idx, 'discount_percentage', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Locuri disponibile</label>
+              <input type="number" value={tier.spots_available} onChange={(e) => updateTier(idx, 'spots_available', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
           </div>
         </div>
       ))}
@@ -495,20 +583,15 @@ function PricingEditor({ config, setConfig }) {
   );
 }
 
-function ExtrasEditor({ config, setConfig }) {
+function ExtrasEditor({ config, setConfig, onDelete }) {
   const addExtra = () => {
-    const newExtra = {
-      id: `extra_${Date.now()}`,
-      name_ro: '',
-      name_en: '',
-      name_fr: '',
-      price_ro: 0,
-      price_en: 0,
-      price_fr: 0
-    };
     setConfig({
       ...config,
-      extras: [...config.extras, newExtra]
+      extras: [...config.extras, {
+        id: `extra_${Date.now()}`,
+        name_ro: '', name_en: '', name_fr: '',
+        price_ro: 0, price_en: 0, price_fr: 0
+      }]
     });
   };
 
@@ -518,73 +601,44 @@ function ExtrasEditor({ config, setConfig }) {
     setConfig({ ...config, extras: updated });
   };
 
-  const deleteExtra = (idx) => {
-    setConfig({
-      ...config,
-      extras: config.extras.filter((_, i) => i !== idx)
-    });
-  };
-
   return (
     <div className="space-y-6">
       {config.extras.map((extra, idx) => (
-        <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-200">
+        <div key={extra.id} className="bg-white rounded-2xl p-6 border border-slate-200">
           <div className="grid md:grid-cols-3 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Nume RO"
-              value={extra.name_ro}
-              onChange={(e) => updateExtra(idx, 'name_ro', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Nume EN"
-              value={extra.name_en}
-              onChange={(e) => updateExtra(idx, 'name_en', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Nume FR"
-              value={extra.name_fr}
-              onChange={(e) => updateExtra(idx, 'name_fr', e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Preț RO"
-              value={extra.price_ro}
-              onChange={(e) => updateExtra(idx, 'price_ro', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Preț EN"
-              value={extra.price_en}
-              onChange={(e) => updateExtra(idx, 'price_en', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
-            <input
-              type="number"
-              placeholder="Preț FR"
-              value={extra.price_fr}
-              onChange={(e) => updateExtra(idx, 'price_fr', parseInt(e.target.value))}
-              className="px-4 py-2 border border-slate-300 rounded-lg"
-            />
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume RO</label>
+              <input type="text" value={extra.name_ro} onChange={(e) => updateExtra(idx, 'name_ro', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume EN</label>
+              <input type="text" value={extra.name_en} onChange={(e) => updateExtra(idx, 'name_en', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Nume FR</label>
+              <input type="text" value={extra.name_fr} onChange={(e) => updateExtra(idx, 'name_fr', e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
           </div>
-          <button
-            onClick={() => deleteExtra(idx)}
-            className="text-red-600 hover:text-red-700 font-semibold flex items-center gap-1"
-          >
+          <div className="grid md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Preț RO (€)</label>
+              <input type="number" value={extra.price_ro} onChange={(e) => updateExtra(idx, 'price_ro', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Preț EN (€)</label>
+              <input type="number" value={extra.price_en} onChange={(e) => updateExtra(idx, 'price_en', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Preț FR (€)</label>
+              <input type="number" value={extra.price_fr} onChange={(e) => updateExtra(idx, 'price_fr', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+          </div>
+          <button onClick={() => onDelete('extras', idx)} className="text-red-600 hover:text-red-700 font-semibold flex items-center gap-1 text-sm">
             <Trash2 className="w-4 h-4" /> Șterge
           </button>
         </div>
       ))}
-      <button
-        onClick={addExtra}
-        className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700"
-      >
+      <button onClick={addExtra} className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700">
         <Plus className="w-5 h-5" /> Adaugă Extra
       </button>
     </div>

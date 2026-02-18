@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 // import { base44 } from '@/api/base44Client';
 import { Euro, Users, Home, Zap, ChevronDown, Check } from 'lucide-react';
+import { saveLead } from '@/api/airtableClient';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
@@ -103,6 +104,15 @@ Rhythm of Leaders Team
       `;
 
       // Optionally: send confirmation email here via backend or 3rd party
+
+      saveLead({
+        email: formData.participant_email,
+        name: formData.participant_name,
+        phone: formData.participant_phone,
+        source: 'retreat_booking',
+        language: lang,
+        notes: `Location: ${formData.camp_location} | Room: ${formData.room_type} | Tier: ${formData.pricing_tier} | Total: €${total}`,
+      }).catch(() => {});
 
       onSuccess({ total, deposit, formData });
     } catch (err) {

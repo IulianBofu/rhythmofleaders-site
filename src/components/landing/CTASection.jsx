@@ -145,7 +145,7 @@ const content = {
   ro: {
     badge: 'Consultație gratuită',
     title: 'Ești gata să conduci cu mai multă energie?',
-    subtitle: '20 de minute. Fără obligații. Fără pitch. Doar o conversație onestă despre obiectivele tale.',
+    subtitle: '30 de minute. Fără obligații. Fără pitch. Doar o conversație onestă despre obiectivele tale.',
     cta: 'Hai să vorbim',
     originalCta: {
       title: 'Sau începe cu un micro-challenge',
@@ -158,7 +158,7 @@ const content = {
   en: {
     badge: 'Free consultation',
     title: 'Ready to lead with more energy?',
-    subtitle: '20 minutes. No obligations. No pitch. Just an honest conversation about your goals.',
+    subtitle: '30 minutes. No obligations. No pitch. Just an honest conversation about your goals.',
     cta: 'Let\'s talk',
     originalCta: {
       title: 'Or start with a micro-challenge',
@@ -173,7 +173,7 @@ const content = {
 const frContent = {
   badge: 'Consultation gratuite',
   title: 'Prêt à diriger avec plus d\'énergie?',
-  subtitle: '20 minutes. Sans obligation. Sans pitch. Juste une conversation honnête sur vos objectifs.',
+  subtitle: '30 minutes. Sans obligation. Sans pitch. Juste une conversation honnête sur vos objectifs.',
   cta: 'Parlons-en',
   originalCta: {
     title: 'Ou commencez par un micro-challenge',
@@ -216,7 +216,7 @@ export default function CTASection({ lang }) {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent" />
       
       {/* Animated gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[150px] animate-pulse" />
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[150px]" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[120px]" />
 
       <div className="max-w-6xl mx-auto px-6 relative">
@@ -235,7 +235,7 @@ export default function CTASection({ lang }) {
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight mb-6">
             {t.title}
           </h2>
-          <p className="text-xl text-white/50 max-w-2xl mx-auto">
+          <p className="text-xl text-white/70 max-w-2xl mx-auto">
             {t.subtitle}
           </p>
         </motion.div>
@@ -254,6 +254,7 @@ export default function CTASection({ lang }) {
               width="100%"
               height="700"
               frameBorder="0"
+              loading="lazy"
               title="Programează o consultație"
               className="w-full bg-white"
             />
@@ -274,7 +275,7 @@ export default function CTASection({ lang }) {
                 </div>
                 <h3 className="text-xl font-bold text-white">{t.originalCta.title}</h3>
               </div>
-              <p className="text-white/60 mb-6 leading-relaxed">
+              <p className="text-white/80 mb-6 leading-relaxed">
                 {t.originalCta.description}
               </p>
               <MicroChallengeButton lang={lang} t={t} />
@@ -282,7 +283,7 @@ export default function CTASection({ lang }) {
 
             {/* LinkedIn Alternative */}
             <div className="text-center">
-              <p className="text-white/40 mb-4 text-sm">{t.alternative}</p>
+              <p className="text-white/70 mb-4 text-sm">{t.alternative}</p>
               <a 
               href="https://www.linkedin.com/in/iulianbofu" 
               target="_blank" 
@@ -298,12 +299,12 @@ export default function CTASection({ lang }) {
             <div className="grid grid-cols-3 gap-4 pt-6">
               {[
                 { value: '100%', label: lang === 'ro' ? 'Confidențial' : 'Confidential' },
-                { value: '20', label: lang === 'ro' ? 'Minute' : 'Minutes' },
+                { value: '30', label: lang === 'ro' ? 'Minute' : 'Minutes' },
                 { value: '0€', label: lang === 'ro' ? 'Obligații' : 'Obligations' }
               ].map((item) => (
                 <div key={item.label} className="text-center p-4 rounded-2xl bg-white/5 border border-white/5">
                   <div className="text-2xl font-black text-white">{item.value}</div>
-                  <div className="text-xs text-white/40 mt-1">{item.label}</div>
+                  <div className="text-xs text-white/70 mt-1">{item.label}</div>
                 </div>
               ))}
             </div>

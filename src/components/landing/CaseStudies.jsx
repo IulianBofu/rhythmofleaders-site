@@ -206,6 +206,7 @@ export default function CaseStudies({ lang }) {
                 <img
                   src={caseStudy.image}
                   alt={caseStudy.name}
+                  loading="lazy"
                   className="w-14 h-14 rounded-full object-cover ring-2 ring-teal-500/30"
                 />
                 <div>

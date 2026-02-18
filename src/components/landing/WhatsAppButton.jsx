@@ -54,6 +54,7 @@ export default function WhatsAppButton({ lang = 'ro' }) {
             <div className="relative bg-white rounded-2xl shadow-2xl shadow-black/10 p-4 border border-slate-100">
               <button 
                 onClick={() => { setShowTooltip(false); setHasInteracted(true); }}
+                aria-label="Close"
                 className="absolute -top-2 -right-2 w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
               >
                 <X className="w-3 h-3" />

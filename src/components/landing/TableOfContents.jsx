@@ -50,19 +50,25 @@ export default function TableOfContents({ lang }) {
   const t = content[lang] || content.en;
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const sections = t.sections.map(s => document.getElementById(s.id)).filter(Boolean);
-      const scrollPos = window.scrollY + 200;
-
-      for (let i = sections.length - 1; i >= 0; i--) {
-        if (sections[i].offsetTop <= scrollPos) {
-          setActiveSection(t.sections[i].id);
-          break;
-        }
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const sections = t.sections.map(s => document.getElementById(s.id)).filter(Boolean);
+          const scrollPos = window.scrollY + 200;
+          for (let i = sections.length - 1; i >= 0; i--) {
+            if (sections[i].offsetTop <= scrollPos) {
+              setActiveSection(t.sections[i].id);
+              break;
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [t.sections]);
 

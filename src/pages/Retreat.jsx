@@ -6,6 +6,7 @@ import {
   Heart, Brain, Dumbbell, Wind, Sparkles, Shield,
   Clock, Euro, Star, ArrowRight, Mail, Phone, User
 } from 'lucide-react';
+import { saveLead } from '@/api/airtableClient';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 const RETREAT_CONFIG = {
@@ -373,8 +374,8 @@ const content = {
       title: 'Programează Consultația Gratuită',
       name: 'Nume Complet',
       email: 'Email',
-      phone: 'Telefon (WhatsApp)',
-      message: 'De ce vrei să participi?',
+      phone: 'Telefon',
+      message: 'Dorești mai multe detalii despre?',
       submit: 'Trimite Cererea',
       success: 'Cerere trimisă! Te contactez în 24h.',
       error: 'Eroare. Încearcă din nou sau scrie direct la iulian@rhythmofleaders.pro'
@@ -627,8 +628,8 @@ const content = {
       title: 'Schedule Free Consultation',
       name: 'Full Name',
       email: 'Email',
-      phone: 'Phone (WhatsApp)',
-      message: 'Why do you want to participate?',
+      phone: 'Phone',
+      message: 'Would you like more details about?',
       submit: 'Send Request',
       success: 'Request sent! I\'ll contact you within 24h.',
       error: 'Error. Try again or write directly to iulian@rhythmofleaders.pro'
@@ -730,8 +731,8 @@ const content = {
       title: 'Planifier Consultation Gratuite',
       name: 'Nom Complet',
       email: 'Email',
-      phone: 'Téléphone (WhatsApp)',
-      message: 'Pourquoi voulez-vous participer?',
+      phone: 'Téléphone',
+      message: 'Souhaitez-vous plus de détails sur?',
       submit: 'Envoyer Demande',
       success: 'Demande envoyée! Je vous contacte sous 24h.',
       error: 'Erreur. Réessayez ou écrivez directement à iulian@rhythmofleaders.pro'
@@ -796,6 +797,15 @@ export default function Retreat() {
         }),
       });
       if (!response.ok) throw new Error('Failed');
+
+      saveLead({
+        email: formData.email,
+        name: formData.name,
+        phone: formData.phone,
+        source: 'retreat_consultation',
+        language: lang,
+        notes: `Location: ${formData.location} | Message: ${formData.message}`,
+      }).catch(() => {});
 
       setSubmitStatus('success');
       setFormData({ name: '', email: '', phone: '', message: '', location: 'chamonix' });
@@ -1426,6 +1436,7 @@ export default function Retreat() {
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input
                       type="tel"
+                      required
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
@@ -1442,6 +1453,7 @@ export default function Retreat() {
                   >
                     <option value="chamonix">{t.hero.locations.chamonix}</option>
                     <option value="corbu">{t.hero.locations.corbu}</option>
+                    <option value="transfagarasan">{t.hero.locations.transfagarasan}</option>
                   </select>
                 </div>
 

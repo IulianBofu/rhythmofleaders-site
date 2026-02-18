@@ -207,6 +207,35 @@ app.post('/api/reservations', async (req, res) => {
   res.status(201).json(newReservation);
 });
 
+// --- Retreat Config API ---
+const RETREAT_CONFIG_PATH = path.join(process.cwd(), 'retreat-config.json');
+
+function readRetreatConfig() {
+  if (!fs.existsSync(RETREAT_CONFIG_PATH)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(RETREAT_CONFIG_PATH, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function writeRetreatConfig(config) {
+  fs.writeFileSync(RETREAT_CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
+}
+
+// GET retreat config (admin)
+app.get('/api/retreat-config', adminAuth, (_req, res) => {
+  const config = readRetreatConfig();
+  if (!config) return res.status(404).json({ error: 'No config found' });
+  res.json(config);
+});
+
+// PUT retreat config (admin)
+app.put('/api/retreat-config', adminAuth, (req, res) => {
+  writeRetreatConfig(req.body);
+  res.json({ ok: true });
+});
+
 app.listen(PORT, () => {
   console.log(`Blog backend running on http://localhost:${PORT}`);
 });

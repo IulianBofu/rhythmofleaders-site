@@ -186,7 +186,7 @@ Dacă vrei program personalizat (running + forță + nutriție) adaptat exact ag
 
 📅 **Rezervă consultație gratuită:** calendly.com/iulian-cyberbuildsolutions/30min
 
-Îți construim planul complet în 20 minute.
+Îți construim planul complet în 30 minute.
 
 **Best,**
 Iulian | Rhythm of Leaders
@@ -379,7 +379,7 @@ If you want personalized program (running + strength + nutrition) adapted exactl
 
 📅 **Book free consultation:** calendly.com/iulian-cyberbuildsolutions/30min
 
-We'll build your complete plan in 20 minutes.
+We'll build your complete plan in 30 minutes.
 
 **Best,**
 Iulian | Rhythm of Leaders
@@ -572,7 +572,7 @@ Si vous voulez programme personnalisé (course + force + nutrition) adapté exac
 
 📅 **Réservez consultation gratuite:** calendly.com/iulian-cyberbuildsolutions/30min
 
-Nous construirons votre plan complet en 20 minutes.
+Nous construirons votre plan complet en 30 minutes.
 
 **Cordialement,**
 Iulian | Rhythm of Leaders

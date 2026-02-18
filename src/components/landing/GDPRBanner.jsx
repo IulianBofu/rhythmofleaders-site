@@ -142,7 +142,7 @@ export default function GDPRBanner({ lang }) {
             <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-slate-900">{t.settings.title}</h3>
-                <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-slate-100 rounded-lg">
+                <button onClick={() => setShowSettings(false)} aria-label="Close settings" className="p-2 hover:bg-slate-100 rounded-lg">
                   <X className="w-5 h-5 text-slate-500" />
                 </button>
               </div>

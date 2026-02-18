@@ -18,7 +18,7 @@ const headers = () => ({
  * Salveaza un lead nou
  * @param {{ email, source, status, language, notes }} lead
  */
-export async function saveLead({ email, source = 'website', status = 'new', language = 'en', notes = '' }) {
+export async function saveLead({ email, name = '', phone = '', source = 'website', status = 'new', language = 'en', notes = '' }) {
   if (!API_KEY || !BASE_ID) {
     console.warn('[airtable] Lipsesc env vars. Setează VITE_AIRTABLE_API_KEY si VITE_AIRTABLE_BASE_ID');
     return { ok: false };
@@ -31,6 +31,8 @@ export async function saveLead({ email, source = 'website', status = 'new', lang
       body: JSON.stringify({
         fields: {
           Email:     email,
+          Name:      name,
+          Phone:     phone,
           Source:    source,
           Status:    status,
           Language:  language,
@@ -71,10 +73,13 @@ export async function listLeads() {
     return (data.records || []).map(r => ({
       id:         r.id,
       email:      r.fields.Email,
+      name:       r.fields.Name       || '',
+      phone:      r.fields.Phone      || '',
       source:     r.fields.Source,
       status:     r.fields.Status     || 'new',
       language:   r.fields.Language   || 'en',
       notes:      r.fields.Notes      || '',
+      reminder_date: r.fields.ReminderDate || '',
       created_date: r.fields.CreatedAt,
     }));
   } catch (err) {
@@ -93,6 +98,9 @@ export async function updateLead(id, fields) {
   const mapped = {};
   if (fields.status) mapped.Status = fields.status;
   if (fields.notes  !== undefined) mapped.Notes  = fields.notes;
+  if (fields.name   !== undefined) mapped.Name   = fields.name;
+  if (fields.phone  !== undefined) mapped.Phone  = fields.phone;
+  if (fields.reminder_date !== undefined) mapped.ReminderDate = fields.reminder_date;
 
   try {
     const res = await fetch(`${url()}/${id}`, {

@@ -59,20 +59,22 @@ export default function Footer({ lang }) {
             <div className="mb-4">
               <Logo light />
             </div>
-            <p className="text-slate-400 max-w-sm mb-6">
+            <p className="text-slate-500 max-w-sm mb-6">
               {t.brand}
             </p>
             <div className="flex gap-3">
-              <a 
+              <a
                 href="https://www.linkedin.com/in/iulianbofu"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="LinkedIn"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a 
+              <a
                 href="mailto:iulian@rhythmofleaders.pro"
+                aria-label="Email"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
               >
                 <Mail className="w-5 h-5" />

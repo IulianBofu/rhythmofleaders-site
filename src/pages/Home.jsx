@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from '@/components/landing/Navbar';
 import HeroSection from '@/components/landing/HeroSection';
-import VideoSection from '@/components/landing/VideoSection';
-import WhyMeSection from '@/components/landing/WhyMeSection';
-import AboutSection from '@/components/landing/AboutSection';
-import ClientAvatars from '@/components/landing/ClientAvatars';
-import ServicesSection from '@/components/landing/ServicesSection';
-import CaseStudies from '@/components/landing/CaseStudies';
-import LeadMagnetSection from '@/components/landing/LeadMagnetSection';
-import BlogSection from '@/components/landing/BlogSection';
-import FAQSection from '@/components/landing/FAQSection';
-import LocalSEO from '@/components/landing/LocalSEO';
-import CTASection from '@/components/landing/CTASection';
-import Footer from '@/components/landing/Footer';
-import WhatsAppButton from '@/components/landing/WhatsAppButton';
-import TableOfContents from '@/components/landing/TableOfContents';
-import GDPRBanner from '@/components/landing/GDPRBanner';
-import PerformanceInsights from '@/components/landing/PerformanceInsights';
+
+// Lazy load below-the-fold components for faster initial paint
+const VideoSection = lazy(() => import('@/components/landing/VideoSection'));
+const WhyMeSection = lazy(() => import('@/components/landing/WhyMeSection'));
+const AboutSection = lazy(() => import('@/components/landing/AboutSection'));
+const ClientAvatars = lazy(() => import('@/components/landing/ClientAvatars'));
+const ServicesSection = lazy(() => import('@/components/landing/ServicesSection'));
+const CaseStudies = lazy(() => import('@/components/landing/CaseStudies'));
+const LeadMagnetSection = lazy(() => import('@/components/landing/LeadMagnetSection'));
+const BlogSection = lazy(() => import('@/components/landing/BlogSection'));
+const FAQSection = lazy(() => import('@/components/landing/FAQSection'));
+const LocalSEO = lazy(() => import('@/components/landing/LocalSEO'));
+const CTASection = lazy(() => import('@/components/landing/CTASection'));
+const Footer = lazy(() => import('@/components/landing/Footer'));
+const WhatsAppButton = lazy(() => import('@/components/landing/WhatsAppButton'));
+const TableOfContents = lazy(() => import('@/components/landing/TableOfContents'));
+const GDPRBanner = lazy(() => import('@/components/landing/GDPRBanner'));
 
 export default function Home() {
   const [lang, setLang] = useState('en');
@@ -102,24 +103,25 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white antialiased">
       <Navbar lang={lang} setLang={setLang} />
-      <TableOfContents lang={lang} />
-      
       <HeroSection lang={lang} />
-      <VideoSection lang={lang} />
-      <WhyMeSection lang={lang} />
-      <AboutSection lang={lang} />
-      <ClientAvatars lang={lang} />
-      <ServicesSection lang={lang} />
-      <CaseStudies lang={lang} />
-      <LeadMagnetSection lang={lang} />
-      <BlogSection lang={lang} />
-      <FAQSection lang={lang} />
-      <LocalSEO lang={lang} />
-      <CTASection lang={lang} />
-      <Footer lang={lang} />
-      
-      <WhatsAppButton lang={lang} />
-      <GDPRBanner lang={lang} />
+
+      <Suspense fallback={null}>
+        <TableOfContents lang={lang} />
+        <VideoSection lang={lang} />
+        <WhyMeSection lang={lang} />
+        <AboutSection lang={lang} />
+        <ClientAvatars lang={lang} />
+        <ServicesSection lang={lang} />
+        <CaseStudies lang={lang} />
+        <LeadMagnetSection lang={lang} />
+        <BlogSection lang={lang} />
+        <FAQSection lang={lang} />
+        <LocalSEO lang={lang} />
+        <CTASection lang={lang} />
+        <Footer lang={lang} />
+        <WhatsAppButton lang={lang} />
+        <GDPRBanner lang={lang} />
+      </Suspense>
     </div>
   );
 }

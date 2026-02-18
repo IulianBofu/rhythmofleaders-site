@@ -78,6 +78,7 @@ export default function LeadMagnetPopup({ lang, isOpen, onClose }) {
           {/* Close button */}
           <button
             onClick={onClose}
+            aria-label="Close"
             className="absolute top-4 right-4 z-10 p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
           >
             <X className="w-5 h-5 text-slate-500" />

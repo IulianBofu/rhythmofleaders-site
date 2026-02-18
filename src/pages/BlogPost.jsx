@@ -161,17 +161,17 @@ export default function BlogPost() {
   const ctaText = {
     ro: {
       title: 'Vrei să optimizezi energia și performanța?',
-      subtitle: 'Programează o consultație gratuită de 20 minute',
+      subtitle: 'Programează o consultație gratuită de 30 minute',
       button: 'Hai să vorbim'
     },
     en: {
       title: 'Want to optimize your energy and performance?',
-      subtitle: 'Schedule a free 20-minute consultation',
+      subtitle: 'Schedule a free 30-minute consultation',
       button: 'Let\'s talk'
     },
     fr: {
       title: 'Envie d\'optimiser votre énergie et performance?',
-      subtitle: 'Planifiez une consultation gratuite de 20 minutes',
+      subtitle: 'Planifiez une consultation gratuite de 30 minutes',
       button: 'Discutons ensemble'
     }
   };
@@ -215,16 +215,16 @@ export default function BlogPost() {
             <div className="flex items-center gap-6 text-slate-500">
               <div className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                <span>{new Date(post.created_date).toLocaleDateString(post.language || 'ro', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                <span>{new Date(post.publish_date).toLocaleDateString(lang, {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}</span>
               </div>
               {post.read_time && (
                 <div className="flex items-center gap-2">
                   <Clock className="w-5 h-5" />
-                  <span>{post.read_time} min citire</span>
+                  <span>{post.read_time} {lang === 'ro' ? 'min citire' : lang === 'fr' ? 'min lecture' : 'min read'}</span>
                 </div>
               )}
             </div>
@@ -246,21 +246,31 @@ export default function BlogPost() {
             </motion.div>
           )}
 
+          {/* Decorative divider */}
+          <div className="flex items-center gap-4 my-10">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-teal-300 to-transparent" />
+            <div className="w-2 h-2 rounded-full bg-teal-400" />
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-teal-300 to-transparent" />
+          </div>
+
           {/* Content */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="prose prose-lg prose-slate max-w-none mb-12
+            className="prose prose-xl prose-slate max-w-none mb-12
                        prose-headings:font-black prose-headings:text-slate-900
-                       prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
-                       prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
-                       prose-p:text-slate-700 prose-p:leading-relaxed prose-p:mb-6
+                       prose-h2:text-4xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:tracking-tight
+                       prose-h3:text-2xl prose-h3:mt-10 prose-h3:mb-4
+                       prose-p:text-slate-700 prose-p:leading-loose prose-p:mb-6
                        prose-a:text-teal-600 prose-a:no-underline hover:prose-a:underline
                        prose-strong:text-slate-900 prose-strong:font-bold
                        prose-ul:my-6 prose-ul:space-y-2 prose-ol:my-6 prose-ol:space-y-2
                        prose-li:text-slate-700
-                       prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-8"
+                       prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-8
+                       prose-blockquote:border-l-4 prose-blockquote:border-teal-500 prose-blockquote:bg-teal-50/50 prose-blockquote:rounded-r-xl prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:italic prose-blockquote:text-slate-600
+                       first-letter:text-5xl first-letter:font-black first-letter:text-teal-600 first-letter:float-left first-letter:mr-3 first-letter:mt-1"
+            style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             dangerouslySetInnerHTML={{ __html: getLocalizedField('content') }}
           />
 
