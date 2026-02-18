@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /CRM
+Disallow: /ClientPortal
+Disallow: /BlogAdmin
+Disallow: /BlogAdminSimple
+Disallow: /RetreatAdmin
+
+Sitemap: https://rhythmofleaders.pro/sitemap.xml

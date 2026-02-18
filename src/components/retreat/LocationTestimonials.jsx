@@ -248,6 +248,7 @@ export default function LocationTestimonials({ location, lang }) {
                 src={testimonial.image}
                 alt={testimonial.name}
                 className="w-14 h-14 rounded-full object-cover"
+                loading="lazy"
               />
               <div>
                 <p className="font-bold text-slate-900">{testimonial.name}</p>

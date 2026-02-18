@@ -136,6 +136,8 @@ export default function Navbar({ lang, setLang }) {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="lg:hidden p-2 rounded-lg text-slate-900"
+            aria-label={mobileOpen ? 'Închide meniu' : 'Deschide meniu'}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>

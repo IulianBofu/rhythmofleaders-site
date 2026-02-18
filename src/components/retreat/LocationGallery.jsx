@@ -122,6 +122,7 @@ export default function LocationGallery({ location, lang }) {
               src={img.url}
               alt={img.caption[l] || img.caption.en}
               className="w-full h-full object-cover group-hover:brightness-75 transition-all"
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
               <p className="absolute bottom-3 left-3 text-white font-semibold text-sm">
@@ -145,6 +146,7 @@ export default function LocationGallery({ location, lang }) {
             <button
               onClick={() => setSelectedImage(null)}
               className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+              aria-label={t.close}
             >
               <X className="w-6 h-6 text-white" />
             </button>
@@ -152,6 +154,7 @@ export default function LocationGallery({ location, lang }) {
             <button
               onClick={(e) => { e.stopPropagation(); prevImage(); }}
               className="absolute left-6 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+              aria-label="Previous image"
             >
               <ChevronLeft className="w-6 h-6 text-white" />
             </button>
@@ -159,6 +162,7 @@ export default function LocationGallery({ location, lang }) {
             <button
               onClick={(e) => { e.stopPropagation(); nextImage(); }}
               className="absolute right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+              aria-label="Next image"
             >
               <ChevronRight className="w-6 h-6 text-white" />
             </button>

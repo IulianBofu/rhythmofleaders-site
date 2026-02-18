@@ -135,10 +135,11 @@ export default function TestimonialsSection({ lang }) {
 
                 {/* Author */}
                 <div className="flex items-center gap-4">
-                  <img 
-                    src={testimonial.image} 
+                  <img
+                    src={testimonial.image}
                     alt={testimonial.name}
                     className="w-14 h-14 rounded-full object-cover ring-4 ring-white shadow-lg"
+                    loading="lazy"
                   />
                   <div>
                     <div className="font-bold text-slate-900">{testimonial.name}</div>

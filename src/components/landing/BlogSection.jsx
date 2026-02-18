@@ -249,10 +249,11 @@ export default function BlogSection({ lang }) {
               <Link to={createPageUrl('BlogPost') + `?slug=${featured.slug}`}>
                 <div className="relative h-full rounded-3xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
                   <div className="aspect-[4/3] overflow-hidden">
-                    <img 
-                      src={featured.image} 
+                    <img
+                      src={featured.image}
                       alt={featured.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
                     />
                   </div>
                   <div className="p-8">
@@ -297,10 +298,11 @@ export default function BlogSection({ lang }) {
                 <Link to={createPageUrl('BlogPost') + `?slug=${article.slug}`}>
                   <div className="flex gap-4 p-4 rounded-2xl bg-white hover:shadow-xl transition-all duration-500 cursor-pointer">
                     <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden">
-                      <img 
-                        src={article.image} 
+                      <img
+                        src={article.image}
                         alt={article.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
