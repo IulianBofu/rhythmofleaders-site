@@ -1,19 +1,9 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 export async function sendGuideEmail({ clientEmail, subject, html }) {
-  const port = Number(process.env.SMTP_PORT);
-  const isSecure = port === 465;
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port,
-    secure: isSecure,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  });
-  await transporter.sendMail({
-    from: `Rhythm of Leaders <${process.env.SMTP_USER}>`,
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  await resend.emails.send({
+    from: 'Rhythm of Leaders <iulian@rhythmofleaders.pro>',
     to: clientEmail,
     subject,
     html

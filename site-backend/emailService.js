@@ -1,41 +1,22 @@
-// Simple email sender using nodemailer
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-function getTransport() {
-  const port = Number(process.env.SMTP_PORT);
-  const isSecure = port === 465;
-  console.log('[SMTP DEBUG]', {
-    host: process.env.SMTP_HOST,
-    port,
-    user: process.env.SMTP_USER,
-    secure: isSecure
-  });
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port,
-    secure: isSecure,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  });
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
 }
 
 export async function sendReservationEmail({ adminEmail, clientEmail, subject, html }) {
-  const transporter = getTransport();
+  const resend = getResend();
 
-  // Send to admin
-  await transporter.sendMail({
-    from: `Rhythm of Leaders <${process.env.SMTP_USER}>`,
+  await resend.emails.send({
+    from: 'Rhythm of Leaders <iulian@rhythmofleaders.pro>',
     to: adminEmail,
     subject,
     html
   });
 
-  // Send copy to client
   if (clientEmail) {
-    await transporter.sendMail({
-      from: `Rhythm of Leaders <${process.env.SMTP_USER}>`,
+    await resend.emails.send({
+      from: 'Rhythm of Leaders <iulian@rhythmofleaders.pro>',
       to: clientEmail,
       subject: subject + ' (Copy)',
       html

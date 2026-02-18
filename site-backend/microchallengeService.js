@@ -1,34 +1,18 @@
-import nodemailer from 'nodemailer';
-
-function getTransport() {
-  const port = Number(process.env.SMTP_PORT);
-  const isSecure = port === 465;
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port,
-    secure: isSecure,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  });
-}
+import { Resend } from 'resend';
 
 export async function sendMicrochallengeEmail({ adminEmail, clientEmail, subject, html }) {
-  const transporter = getTransport();
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
-  // Send to client
-  await transporter.sendMail({
-    from: `Rhythm of Leaders <${process.env.SMTP_USER}>`,
+  await resend.emails.send({
+    from: 'Rhythm of Leaders <iulian@rhythmofleaders.pro>',
     to: clientEmail,
     subject,
     html
   });
 
-  // Send copy to admin (optional)
   if (adminEmail) {
-    await transporter.sendMail({
-      from: `Rhythm of Leaders <${process.env.SMTP_USER}>`,
+    await resend.emails.send({
+      from: 'Rhythm of Leaders <iulian@rhythmofleaders.pro>',
       to: adminEmail,
       subject: subject + ' (Admin Copy)',
       html
