@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Linkedin, Calendar, Sparkles, ArrowRight, Zap, Check } from 'lucide-react';
 import { saveLead } from '@/api/airtableClient';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 function MicroChallengeButton({ lang, t }) {
   const [email, setEmail] = useState('');

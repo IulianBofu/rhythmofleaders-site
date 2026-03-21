@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Plus, Trash2, Save, Lock, Image, GripVertical, X, AlertTriangle } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 const ADMIN_PASSWORD = 'Panzer89$$$';
 
 export default function RetreatAdmin() {

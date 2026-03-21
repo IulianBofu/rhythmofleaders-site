@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Euro, Users, Home, Zap, ChevronDown, Check } from 'lucide-react';
 import { saveLead } from '@/api/airtableClient';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 export default function ReservationForm({ lang, retreatConfig, onSuccess }) {
   const [formData, setFormData] = useState({

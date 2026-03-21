@@ -1,25 +1,27 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-function getResend() {
-  return new Resend(process.env.RESEND_API_KEY);
+function getTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
 }
 
-export async function sendReservationEmail({ adminEmail, clientEmail, subject, html }) {
-  const resend = getResend();
+const FROM = 'Rhythm of Leaders <iulian@rhythmofleaders.pro>';
 
-  await resend.emails.send({
-    from: 'Rhythm of Leaders <iulian@rhythmofleaders.pro>',
-    to: adminEmail,
-    subject,
-    html
-  });
+export async function sendReservationEmail({ adminEmail, clientEmail, subject, html }) {
+  const transporter = getTransporter();
+
+  if (adminEmail) {
+    await transporter.sendMail({ from: FROM, to: adminEmail, subject, html });
+  }
 
   if (clientEmail) {
-    await resend.emails.send({
-      from: 'Rhythm of Leaders <iulian@rhythmofleaders.pro>',
-      to: clientEmail,
-      subject: subject + ' (Copy)',
-      html
-    });
+    await transporter.sendMail({ from: FROM, to: clientEmail, subject: subject + ' (Copy)', html });
   }
 }

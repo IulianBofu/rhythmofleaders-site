@@ -7,7 +7,7 @@ import {
   Clock, Euro, Star, ArrowRight, Mail, Phone, User
 } from 'lucide-react';
 import { saveLead } from '@/api/airtableClient';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 const RETREAT_CONFIG = {
   deposit_percentage: 30,

@@ -1,0 +1,43 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ""
+        VITE_EMAILJS_SERVICE_ID: ${VITE_EMAILJS_SERVICE_ID:-}
+        VITE_EMAILJS_PUBLIC_KEY: ${VITE_EMAILJS_PUBLIC_KEY:-}
+        VITE_EMAILJS_TEMPLATE_GUIDE: ${VITE_EMAILJS_TEMPLATE_GUIDE:-}
+        VITE_EMAILJS_TEMPLATE_CHALLENGE: ${VITE_EMAILJS_TEMPLATE_CHALLENGE:-}
+        VITE_AIRTABLE_API_KEY: ${VITE_AIRTABLE_API_KEY:-}
+        VITE_AIRTABLE_BASE_ID: ${VITE_AIRTABLE_BASE_ID:-}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+        VITE_GUIDE_PDF_URL: ${VITE_GUIDE_PDF_URL:-}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - default
+      - cyberbuild_frontend
+
+  backend:
+    build:
+      context: ./site-backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      PORT: 4000
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - default
+
+networks:
+  cyberbuild_frontend:
+    external: true
+
+volumes:
+  backend_data:

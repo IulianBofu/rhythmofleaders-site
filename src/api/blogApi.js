@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 // Simple API client for backend blog CRUD
-const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api`;
+const API_URL = `${import.meta.env.VITE_API_URL ?? ''}/api`;
 
 function authHeaders() {
   // Basic Auth: admin:Panzer89$$$
