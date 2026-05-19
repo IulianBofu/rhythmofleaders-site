@@ -130,6 +130,14 @@ export default function Navbar({ lang, setLang }) {
               ))}
             </div>
 
+            {/* Training Platform */}
+            <Link
+              to="/training"
+              className={`px-3 py-2 text-sm font-medium transition-colors ${scrolled ? 'text-slate-600 hover:text-slate-900' : 'text-white/80 hover:text-white'}`}
+            >
+              Training
+            </Link>
+
             {/* CTA */}
             <a
               href="https://calendly.com/iulian-cyberbuildsolutions/30min?back=1"
@@ -186,6 +194,14 @@ export default function Navbar({ lang, setLang }) {
                 {t.pages.tabere}
               </Link>
               
+              <Link
+                to="/training"
+                onClick={() => setMobileOpen(false)}
+                className="block py-3 text-slate-700 font-medium border-t border-slate-100"
+              >
+                Training Platform
+              </Link>
+
               <div className="border-t border-slate-100 pt-2">
                 {t.links.map((link, i) => (
                   <button

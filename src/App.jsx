@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 const BlogAdminSimple = lazy(() => import('./pages/BlogAdminSimple'));
+const TrainingPlatform = lazy(() => import('./pages/training/TrainingPlatform'));
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -61,6 +62,7 @@ const AuthenticatedApp = () => {
           />
         ))}
         <Route path="/BlogAdminSimple" element={<BlogAdminSimple />} />
+        <Route path="/training/*" element={<TrainingPlatform />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Suspense>

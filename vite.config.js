@@ -5,6 +5,15 @@ import { fileURLToPath } from 'node:url'
 export default defineConfig({
   base: '/',
   plugins: [react()],
+  server: {
+    proxy: {
+      '/training-api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/training-api/, '/api'),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
